@@ -1,0 +1,331 @@
+EASY RENT BALI
+AI-ASSISTED ENGINEERING SESSION LOG
+
+Candidate  : Azril Miqraji
+Role       : IT Operations & QA Support Engineer (AI-Oriented)
+AI Tool    : ChatGPT
+Assessment : Technical Assessment & Evaluation
+
+======================================================================
+SESSION 01
+TASK 1 - PRODUCTION INCIDENT ANALYSIS
+======================================================================
+
+USER:
+
+Analyze Task 1 of the provided Easy Rent Bali technical assessment from the
+perspective of an IT Operations & QA Support Engineer. Use only the supplied
+request payload and production stack trace as evidence.
+
+Identify:
+
+1. the immediate technical root cause,
+2. the value that triggered the failure,
+3. the property access that failed,
+4. where the exception originated,
+5. and why the checkout resulted in an HTTP 500 error.
+
+Keep the analysis concise, technical, and evidence-based. Do not introduce
+business rules or implementation details that are not supported by the
+assessment.
+
+----------------------------------------------------------------------
+ASSISTANT RESPONSE
+----------------------------------------------------------------------
+
+The checkout failed because validateCustomerCompliance() attempted to access
+a property on customer.doc_urls while doc_urls was null.
+
+The triggering value was:
+
+"doc_urls": null
+
+The failing property was:
+
+passport_scan
+
+The production error was:
+
+TypeError: Cannot read properties of null (reading 'passport_scan')
+
+The stack trace showed that the exception originated in:
+
+validateCustomerCompliance
+/app/dist/services/compliance.js:42:28
+
+The failure then appeared in:
+
+processBooking
+/app/dist/services/booking.js:114:15
+
+and finally reached the booking controller.
+
+The root cause was insufficient null handling before accessing the nested
+passport_scan property.
+
+======================================================================
+SESSION 02
+TASK 2 - QA EDGE-CASE TEST MATRIX
+======================================================================
+
+USER:
+
+Create a prioritized QA edge-case test matrix for Task 2 of the Easy Rent
+Bali technical assessment.
+
+Use only the supplied specification:
+
+- Minimum rental duration is strictly 24 hours.
+- Promo code BALIFAST grants a 10% discount on orders greater than or equal
+  to IDR 500,000.
+- Vehicles must reject overlapping bookings for identical vehicle IDs.
+- Domestic renters require KTP.
+- Foreign tourists require Passport.
+
+Include coverage for:
+
+1. Standard happy path.
+2. Rental-duration boundary cases.
+3. Timezone boundaries, including WITA and UTC conversion.
+4. Voucher threshold edge cases.
+5. Voucher case sensitivity.
+6. Expired voucher handling.
+7. Missing document objects.
+8. Overlapping bookings.
+9. Concurrent race conditions / double booking.
+
+Use the required columns:
+
+Test ID | Category | Scenario Description | Input Payload / Mock Data |
+Expected Result | Severity (P1-P4)
+
+Provide at least 6 prioritized test cases.
+
+If the specification does not define the exact expected behavior for a case,
+explicitly mark it as a requirement clarification instead of inventing a
+business rule.
+
+----------------------------------------------------------------------
+ASSISTANT RESPONSE
+----------------------------------------------------------------------
+
+The generated test matrix covered:
+
+TC-01 Happy Path
+TC-02 Rental Duration
+TC-03 Rental Duration Boundary
+TC-04 Timezone Boundary
+TC-05 Voucher Threshold
+TC-06 Voucher Threshold Boundary
+TC-07 Voucher Case Sensitivity
+TC-08 Expired Voucher
+TC-09 Missing Document
+TC-10 Identification
+TC-11 Overlapping Booking
+TC-12 Concurrent / Double Booking
+
+Voucher case sensitivity and expired-voucher behavior were identified as
+requirement clarifications because the supplied specification did not define
+their exact expected behavior.
+
+======================================================================
+SESSION 03
+TASK 3 - OPERATIONAL TRIAGE SCRIPT
+======================================================================
+
+USER:
+
+Implement Task 3 of the Easy Rent Bali technical assessment using Node.js /
+JavaScript.
+
+Use the supplied fleet_status.json data exactly as provided.
+
+A vehicle must be selected when:
+
+overdue_hours > 0
+
+OR
+
+(status === "rented" && fuel_level < 20%)
+
+Requirements:
+
+1. Read the fleet data from fleet_status.json.
+2. Parse percentage values such as "15%" into numeric fuel levels.
+3. Preserve the exact OR filtering condition from the assessment.
+4. Add the urgency tag 🚨 OVERDUE when overdue_hours > 0.
+5. Add the urgency tag ⚠️ LOW FUEL when the vehicle status is rented and the
+   fuel level is below 20%.
+6. Allow a vehicle to receive both urgency tags when both conditions are met.
+7. Output a formatted WhatsApp/Slack-style alert containing plate number,
+   model, status, and urgency tags.
+8. Handle file-read or JSON-parsing errors gracefully.
+9. Use built-in Node.js functionality where possible.
+
+After generating the script:
+
+- manually validate the filtering logic,
+- identify which vehicles should appear,
+- explain which condition caused each match,
+- provide the expected console output.
+
+----------------------------------------------------------------------
+ASSISTANT RESPONSE
+----------------------------------------------------------------------
+
+The implementation used Node.js built-in modules:
+
+fs
+path
+
+The generated script:
+
+- reads fleet_status.json,
+- parses percentage values,
+- evaluates the required OR condition,
+- generates urgency tags,
+- formats the result as an operational alert,
+- and handles file-read / parsing failures.
+
+Core filter:
+
+vehicle.overdue_hours > 0 ||
+(vehicle.status === "rented" && fuelLevel < 20)
+
+Expected selected vehicles:
+
+DK 5678 CD
+Toyota Avanza
+OVERDUE + LOW FUEL
+
+DK 3456 GH
+Honda Scoopy
+OVERDUE
+
+DK 7890 IJ
+Yamaha NMAX
+LOW FUEL
+
+Expected excluded vehicles:
+
+DK 1234 AB
+DK 9012 EF
+
+======================================================================
+SESSION 04
+FINAL TECHNICAL REVIEW
+======================================================================
+
+USER:
+
+Perform a final technical review of Tasks 1, 2, and 3 of the Easy Rent Bali
+assessment against the original assessment document.
+
+Verify:
+
+1. Task 1 is fully supported by the supplied production payload and stack
+   trace.
+2. The defensive patch correctly handles the reported null-document failure
+   without introducing unsupported assumptions.
+3. Task 2 covers all mandatory QA categories and does not invent undefined
+   business rules.
+4. Task 3 implements the exact required filtering condition and produces the
+   expected alert output.
+5. Identify any technical mistake, unsupported assumption, missing
+   requirement, or inconsistency in the current solution.
+
+Do not automatically approve the solution. If an issue exists, explain it
+clearly and provide the corrected version.
+
+----------------------------------------------------------------------
+ASSISTANT REVIEW
+----------------------------------------------------------------------
+
+The final review identified two concrete issues and one improvement.
+
+----------------------------------------------------------------------
+ISSUE 1 - QA OVERLAP TEST
+----------------------------------------------------------------------
+
+The previous overlapping-booking example used rental periods shorter than
+24 hours.
+
+This introduced two simultaneous failure conditions:
+
+1. invalid rental duration,
+2. overlapping booking.
+
+The test therefore did not isolate the overlap rule.
+
+The corrected test uses two independently valid 24-hour booking periods that
+still overlap.
+
+----------------------------------------------------------------------
+ISSUE 2 - ALERT FORMATTING
+----------------------------------------------------------------------
+
+The original formatter used:
+
+return ["🚘 Fleet Operational Alert", "", ...alerts].join("\n\n");
+
+The explicit empty string combined with join("\n\n") introduced additional
+blank lines.
+
+The corrected version is:
+
+return ["🚘 Fleet Operational Alert", ...alerts].join("\n\n");
+
+----------------------------------------------------------------------
+IMPROVEMENT - TIMEZONE TEST
+----------------------------------------------------------------------
+
+The timezone test was improved to explicitly include equivalent WITA and UTC
+timestamps.
+
+This makes it easier to verify that timezone normalization preserves the
+exact 24-hour rental duration.
+
+======================================================================
+CORRECTED TASK 3 EXPECTED OUTPUT
+======================================================================
+
+🚘 Fleet Operational Alert
+
+1. Plate: DK 5678 CD
+Model: Toyota Avanza
+Status: rented
+Urgency: 🚨 OVERDUE | ⚠️ LOW FUEL
+
+2. Plate: DK 3456 GH
+Model: Honda Scoopy
+Status: rented
+Urgency: 🚨 OVERDUE
+
+3. Plate: DK 7890 IJ
+Model: Yamaha NMAX
+Status: rented
+Urgency: ⚠️ LOW FUEL
+
+======================================================================
+FINAL VALIDATION
+======================================================================
+
+The assessment workflow demonstrated:
+
+- structured prompting,
+- requirement-constrained analysis,
+- manual validation,
+- QA edge-case design,
+- operational script generation,
+- final technical review,
+- defect identification,
+- and correction before submission.
+
+The final review did not automatically approve the generated solution.
+
+Two issues were discovered and corrected before the submission was considered
+ready.
+
+======================================================================
+END OF AI-ASSISTED ENGINEERING SESSION LOG
+======================================================================
